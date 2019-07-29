@@ -46,10 +46,10 @@
         </g:link>
         <span>|</span>
         <sec:ifNotLoggedIn>
-            <g:render template="/auth/loginWithGoogle"/>
+            <g:render template="/auth/loginWithKeycloak"/>
         </sec:ifNotLoggedIn>
         <sec:ifLoggedIn>
-            <g:form controller="logout" style="display: inline;">
+            <g:form controller="auth" action="logout" style="display: inline;">
                 <input type="submit" value="${g.message(code: "logout", default:"Logout")}"/>
             </g:form>
         </sec:ifLoggedIn>

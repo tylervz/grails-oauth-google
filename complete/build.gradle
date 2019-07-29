@@ -51,7 +51,7 @@ dependencies {
     compile "org.hibernate:hibernate-core:5.1.5.Final"
     compile "org.grails.plugins:gsp"
     //tag::secDependency[]
-    compile 'org.grails.plugins:spring-security-core:3.2.1'
+    compile 'org.grails.plugins:spring-security-core:3.2.3'
     compile 'org.grails.plugins:spring-security-rest:2.0.0.RC1'
     //end::secDependency[]
     console "org.grails:grails-console"

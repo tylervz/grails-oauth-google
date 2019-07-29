@@ -1,6 +1,7 @@
 package demo
 
 import grails.config.Config
+import grails.converters.JSON
 import grails.core.support.GrailsConfigurationAware
 import grails.plugin.springsecurity.annotation.Secured
 import grails.plugin.springsecurity.rest.token.reader.TokenReader
@@ -32,6 +33,26 @@ class AuthController implements GrailsConfigurationAware {
         [grailsServerUrl: grailsServerUrl]
     }
 
+    /**
+     * Responding a cookie with the same name and maxAge equals 0 deletes the cookie.
+     * Thus, it logs out the user when the JWT cookie and KEYCLOAK_IDENTITY cookie are both deleted.
+     */
+    @Secured('permitAll')
+    def logout() {
+        Cookie cookie = new Cookie( cookieName(), "" )
+        cookie.setVersion(-1)
+        cookie.path = "/"
+        cookie.maxAge = 0
+        response.addCookie(cookie)
+        Cookie keycloakCookie = new Cookie( "KEYCLOAK_IDENTITY", "" )
+        keycloakCookie.setVersion(-1)
+        // TODO: have this set dynamically from configuration
+        keycloakCookie.path = "/auth/realms/hclabs-dev/"
+        keycloakCookie.maxAge = 0
+        response.addCookie(keycloakCookie)
+        [grailsServerUrl: grailsServerUrl]
+    }
+
     protected Cookie jwtCookie(String tokenValue) {
         Cookie jwtCookie = new Cookie( cookieName(), tokenValue )
         jwtCookie.maxAge = jwtExpiration // <5>
@@ -40,7 +61,7 @@ class AuthController implements GrailsConfigurationAware {
         if ( httpOnly() ) {
             jwtCookie.setSecure(true) // <4>
         }
-        jwtCookie
+        return jwtCookie
     }
 
     @Override

@@ -29,13 +29,14 @@ grails {
 					}
 				}
 				oauth {
-					frontendCallbackUrl = { String tokenValue -> "http://localhost:8080/auth/success?token=${tokenValue}" } //<4>
-					google {
-						client = org.pac4j.oauth.client.Google2Client //<5>
-						key = '${GOOGLE_KEY}' //<6>
-						secret = '${GOOGLE_SECRET}' //<7>
-						scope = org.pac4j.oauth.client.Google2Client.Google2Scope.EMAIL_AND_PROFILE //<8>
-						defaultRoles = [] //<9>
+					frontendCallbackUrl = { String tokenValue -> "http://localhost:8082/auth/success?token=${tokenValue}" } //<4>
+					keycloak {
+						client = demo.KeycloakOauth2Client //<5>
+						// These are set in application.yml instead
+//						key = '${GOOGLE_KEY}' //<6>
+//						secret = '${GOOGLE_SECRET}' //<7>
+						scope = demo.KeycloakOauth2Client.Keycloak2Scope.EMAIL_AND_PROFILE_AND_OPENID //<8>
+						// defaultRoles = [] //<9>
 					}
 				}
 			}
@@ -46,6 +47,7 @@ grails {
 //end::grailsPluginSpringSecurityRest[]
 
 //tag::filterChain[]
+// Stateless chain that allows anonymous access when no token is sent. If however a token is on the request, it will be validated.
 String ANONYMOUS_FILTERS = 'anonymousAuthenticationFilter,restTokenValidationFilter,restExceptionTranslationFilter,filterInvocationInterceptor' // <1>
 grails.plugin.springsecurity.filterChain.chainMap = [
 		[pattern: '/dbconsole/**',      filters: 'none'],
@@ -58,9 +60,11 @@ grails.plugin.springsecurity.filterChain.chainMap = [
 		[pattern: '/book/show/*', filters: ANONYMOUS_FILTERS],  // <1>
 		[pattern: '/bookFavourite/index', filters: ANONYMOUS_FILTERS], // <1>
 		[pattern: '/auth/success', filters: ANONYMOUS_FILTERS], // <1>
-		[pattern: '/oauth/authenticate/google', filters: ANONYMOUS_FILTERS], // <1>
-		[pattern: '/oauth/callback/google', filters: ANONYMOUS_FILTERS], // <1>
-		[pattern: '/**', filters: 'JOINED_FILTERS,-anonymousAuthenticationFilter,-exceptionTranslationFilter,-authenticationProcessingFilter,-securityContextPersistenceFilter,-rememberMeAuthenticationFilter'],  // <1>
+		[pattern: '/oauth/authenticate/keycloak', filters: ANONYMOUS_FILTERS], // <1>
+		[pattern: '/oauth/callback/keycloak', filters: ANONYMOUS_FILTERS], // <1>
+		[pattern: '/**', filters: ANONYMOUS_FILTERS]
+		// Stateless chain that doesn’t allow anonymous access. Thus, the token will always be required, and if missing, a Bad Request reponse will be sent back to the client.
+		// [pattern: '/**', filters: 'JOINED_FILTERS,-anonymousAuthenticationFilter,-exceptionTranslationFilter,-authenticationProcessingFilter,-securityContextPersistenceFilter,-rememberMeAuthenticationFilter'],  // <1>
 ]
 //end::filterChain[]
 
