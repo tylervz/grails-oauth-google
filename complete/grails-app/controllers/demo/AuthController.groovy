@@ -1,7 +1,6 @@
 package demo
 
 import grails.config.Config
-import grails.converters.JSON
 import grails.core.support.GrailsConfigurationAware
 import grails.plugin.springsecurity.annotation.Secured
 import grails.plugin.springsecurity.rest.token.reader.TokenReader
@@ -35,21 +34,28 @@ class AuthController implements GrailsConfigurationAware {
 
     /**
      * Responding a cookie with the same name and maxAge equals 0 deletes the cookie.
-     * Thus, it logs out the user when the JWT cookie and KEYCLOAK_IDENTITY cookie are both deleted.
+     * Thus, it logs out the user when the JWT cookie and multiple other cookies are deleted.
      */
     @Secured('permitAll')
     def logout() {
-        Cookie cookie = new Cookie( cookieName(), "" )
-        cookie.setVersion(-1)
-        cookie.path = "/"
-        cookie.maxAge = 0
-        response.addCookie(cookie)
-        Cookie keycloakCookie = new Cookie( "KEYCLOAK_IDENTITY", "" )
-        keycloakCookie.setVersion(-1)
+        Cookie jwtCookie = new Cookie( cookieName(), "" )
+        jwtCookie.setVersion(-1)
+        jwtCookie.path = "/"
+        jwtCookie.maxAge = 0
+        response.addCookie(jwtCookie)
         // TODO: have this set dynamically from configuration
-        keycloakCookie.path = "/auth/realms/hclabs-dev/"
-        keycloakCookie.maxAge = 0
-        response.addCookie(keycloakCookie)
+        final String keycloakRealm = "hclabs-dev"
+        final String realmPath = "/auth/realms/${keycloakRealm}/"
+        Cookie keycloakIdentityCookie = new Cookie( "KEYCLOAK_IDENTITY", "" )
+        keycloakIdentityCookie.setVersion(-1)
+        keycloakIdentityCookie.path = realmPath
+        keycloakIdentityCookie.maxAge = 0
+        response.addCookie(keycloakIdentityCookie)
+        Cookie authSessionCookie = new Cookie( "AUTH_SESSION_ID", "" )
+        authSessionCookie.setVersion(-1)
+        authSessionCookie.path = realmPath
+        authSessionCookie.maxAge = 0
+        response.addCookie(authSessionCookie)
         [grailsServerUrl: grailsServerUrl]
     }
 
