@@ -49,4 +49,16 @@ class KeycloakOauth2ClientSpec extends Specification {
         then:
         scope != null
     }
+
+    void 'test fetching roles from access token'() {
+        given:
+        final String accessToken = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJ0My1QamlGc3pUQnVtRmREenlsS1Y2TmhPalczY181VmhBaVFHdFZqMHhZIn0.eyJqdGkiOiJmYTI4NzBlOS0wZTY2LTQ1NGUtOTFmNy01MTgxNTMwMmJhOTAiLCJleHAiOjE1NjQ2NzQ5NjIsIm5iZiI6MCwiaWF0IjoxNTY0Njc0MzYyLCJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAvYXV0aC9yZWFsbXMvaGNsYWJzLWRldiIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiI4OThlZWE4Ni0zMzgzLTQ2NzctOGE0OS02M2I1YjA2OThmN2UiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJvanQiLCJhdXRoX3RpbWUiOjAsInNlc3Npb25fc3RhdGUiOiJiMDNiZjFhMC1iMDFmLTQ3NjUtOTNmNi00YWMwYWIzOWMzMjciLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHA6Ly9sb2NhbGhvc3Q6ODA4MCJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsib2ZmbGluZV9hY2Nlc3MiLCJST0xFX09KVF9VU0VSIiwidW1hX2F1dGhvcml6YXRpb24iLCJST0xFX09KVF9BRE1JTiJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoiZW1haWwgcHJvZmlsZSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwibmFtZSI6IkFkbWluIFVzZXIiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJhZG1pbnVzZXIiLCJnaXZlbl9uYW1lIjoiQWRtaW4iLCJmYW1pbHlfbmFtZSI6IlVzZXIiLCJlbWFpbCI6ImFkbWludXNlckBlbWFpbC5jb20ifQ.EtVvZbxPM9Dk2ktmEthjUjthzpipSg_95zSAWAXTz5ZETZ-vLXvjb8KR_owHN8GPm3Tsjls__O5BjpFFgg2WWuqmxGQm4m4ZNuvb8FWvJdP5tPc-jAngXWAxh72zXFF4IEYPZttHTyt5ho4G2BZquvEOr55DCqrgweterzl04ZpQ3iu5V8SgTmiIA7U07xLl4EboJUDaVgroKqKQBW0M4O8kmHCNDGjbMFfafiqfOLHOlNesE82Xw81UqaHkG-A4T4ANTlkXunmetFcri64IpqlLZGEgcN2_nfbDSAa-8gLCF00bWTRuUpXmraHeUDQsiiTN_u_HjqfbL0Y8X_cYGA"
+
+        when:
+        def roles = Keycloak2Profile.testFetchingRoles(accessToken)
+
+        then:
+        roles != null
+        roles.size() == 4
+    }
 }

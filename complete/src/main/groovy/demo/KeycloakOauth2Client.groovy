@@ -3,7 +3,10 @@ package demo
 import org.pac4j.core.context.WebContext
 import org.pac4j.core.util.CommonHelper
 import org.pac4j.oauth.client.OAuth20Client
+import org.pac4j.oauth.credentials.authenticator.OAuth20Authenticator
+import org.pac4j.oauth.credentials.extractor.OAuth20CredentialsExtractor
 import org.pac4j.oauth.exception.OAuthCredentialsException
+import org.pac4j.oauth.redirect.OAuth20RedirectActionBuilder
 
 /**
  * <p>This class is the OAuth client to authenticate users in Keycloak using OAuth protocol version 2.0.</p>
@@ -64,7 +67,10 @@ class KeycloakOauth2Client extends OAuth20Client<Keycloak2Profile> {
         setConfiguration(configuration)
         defaultLogoutActionBuilder(new KeycloakLogoutActionBuilder<>())
 
-        super.clientInit(context)
+        defaultRedirectActionBuilder(new OAuth20RedirectActionBuilder(configuration))
+        defaultCredentialsExtractor(new OAuth20CredentialsExtractor(configuration))
+        defaultAuthenticator(new OAuth20Authenticator(configuration))
+        defaultProfileCreator(new Keycloak2ProfileCreator<>(configuration))
     }
 
     Keycloak2Scope getScope() {

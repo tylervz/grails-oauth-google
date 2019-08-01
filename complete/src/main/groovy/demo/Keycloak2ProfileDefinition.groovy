@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JsonNode
 import com.github.scribejava.core.model.OAuth2AccessToken
 import com.github.scribejava.core.model.Verb
+import org.apache.commons.codec.binary.Base64
 import org.pac4j.core.exception.HttpAction
 import org.pac4j.core.profile.converter.Converters
 import org.pac4j.oauth.config.OAuth20Configuration
