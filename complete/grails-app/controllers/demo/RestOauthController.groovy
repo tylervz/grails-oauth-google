@@ -55,6 +55,6 @@ class RestOauthController {
 
     private String getCallbackUrl(baseUrl, String queryStringSuffix) {
         session[CALLBACK_ATTR] = null
-        baseUrl instanceof Closure ? baseUrl(queryStringSuffix) : baseUrl + queryStringSuffix
+        return baseUrl instanceof Closure ? baseUrl(queryStringSuffix) : baseUrl + queryStringSuffix
     }
 }

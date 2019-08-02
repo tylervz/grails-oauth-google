@@ -12,6 +12,9 @@ class KeycloakApi20 extends DefaultApi20 {
     protected KeycloakApi20() {
     }
 
+    String keycloakServerUrl
+    String keycloakRealm
+
     private static class InstanceHolder {
         private static final KeycloakApi20 INSTANCE = new KeycloakApi20()
     }
@@ -20,16 +23,14 @@ class KeycloakApi20 extends DefaultApi20 {
         return InstanceHolder.INSTANCE
     }
 
-    // TODO: have this set dynamically from configuration once everything is working
     @Override
     String getAccessTokenEndpoint() {
-        return "http://localhost:8080/auth/realms/hclabs-dev/protocol/openid-connect/token"
+        return "${keycloakServerUrl}/auth/realms/${keycloakRealm}/protocol/openid-connect/token"
     }
 
-    // TODO: have this set dynamically from configuration once everything is working
     @Override
     protected String getAuthorizationBaseUrl() {
-        return "http://localhost:8080/auth/realms/hclabs-dev/protocol/openid-connect/auth"
+        return "${keycloakServerUrl}/auth/realms/${keycloakRealm}/protocol/openid-connect/auth"
     }
 
     @Override

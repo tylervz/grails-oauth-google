@@ -16,6 +16,7 @@ class AuthController implements GrailsConfigurationAware {
     int jwtExpiration
 
     String grailsServerUrl
+    String keycloakRealm
 
     static allowedMethods = [
             success: 'GET',
@@ -43,8 +44,6 @@ class AuthController implements GrailsConfigurationAware {
         jwtCookie.path = "/"
         jwtCookie.maxAge = 0
         response.addCookie(jwtCookie)
-        // TODO: have this set dynamically from configuration
-        final String keycloakRealm = "hclabs-dev"
         final String realmPath = "/auth/realms/${keycloakRealm}/"
         Cookie keycloakIdentityCookie = new Cookie( "KEYCLOAK_IDENTITY", "" )
         keycloakIdentityCookie.setVersion(-1)
@@ -74,6 +73,7 @@ class AuthController implements GrailsConfigurationAware {
     void setConfiguration(Config co) {
         jwtExpiration = co.getProperty('grails.plugin.springsecurity.rest.token.storage.memcached.expiration', Integer, 3600) // <5>
         grailsServerUrl = co.getProperty('grails.serverURL', String)
+        keycloakRealm = co.getProperty('grails.plugin.springsecurity.rest.oauth.keycloak.realm', String)
     }
 
     protected boolean httpOnly() {

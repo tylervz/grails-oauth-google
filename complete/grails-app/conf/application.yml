@@ -86,9 +86,22 @@ grails:
                 staticparts: none
     plugin:
         springsecurity:
+            providerNames:
+                - anonymousAuthenticationProvider
             rest:
+                token:
+                    validation:
+                        useBearerToken: false
+                        enableAnonymousAccess: true
+                    storage.jwt.secret: 'VVnVYzxWWNmeWwTtjRYX4492342354VVnVYzxWWNmeWwTtjRYX'
                 oauth:
+                    # The token gets appended to this
+                    frontendCallbackUrl: "http://localhost:8082/auth/success?token="
                     keycloak:
+                        client: demo.KeycloakOauth2Client
+                        # The Keycloak URL
+                        serverUrl: "http://localhost:8080"
+                        realm: hclabs-dev
                         # Client ID (would have this imported as secrets on kubernetes)
                         key: ojt
                         # Client secret (would have this imported as secrets on kubernetes)

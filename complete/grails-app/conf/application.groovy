@@ -17,30 +17,12 @@ grails {
 	plugin {
 		springsecurity {
 			rest {
-				token {
-					validation {
-						useBearerToken = false // <1>
-						enableAnonymousAccess = true // <2>
-					}
-					storage {
-						jwt {
-							secret = 'foobar123'*4 //<3>
-						}
-					}
-				}
 				oauth {
-					frontendCallbackUrl = { String tokenValue -> "http://localhost:8082/auth/success?token=${tokenValue}" } //<4>
 					keycloak {
-						client = demo.KeycloakOauth2Client //<5>
-						// These are set in application.yml instead
-//						key = '${GOOGLE_KEY}' //<6>
-//						secret = '${GOOGLE_SECRET}' //<7>
 						scope = demo.KeycloakOauth2Client.Keycloak2Scope.EMAIL_AND_PROFILE_AND_OPENID //<8>
-						// defaultRoles = [] //<9>
 					}
 				}
 			}
-			providerNames = ['anonymousAuthenticationProvider'] // <10>
 		}
 	}
 }

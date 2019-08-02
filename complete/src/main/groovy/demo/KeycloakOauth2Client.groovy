@@ -32,12 +32,24 @@ class KeycloakOauth2Client extends OAuth20Client<Keycloak2Profile> {
 
     protected Keycloak2Scope scope = Keycloak2Scope.EMAIL_AND_PROFILE_AND_OPENID
 
+    String keycloakServerUrl
+    String keycloakRealm
+
     KeycloakOauth2Client() {
+        setConfiguration()
     }
 
     KeycloakOauth2Client(final String key, final String secret) {
         setKey(key)
         setSecret(secret)
+        setConfiguration()
+    }
+
+    void setConfiguration() {
+        keycloakServerUrl = System.getenv('grails.plugin.springsecurity.rest.oauth.keycloak.serverUrl') ?:
+                System.getenv('KEYCLOAK_SERVER')
+        keycloakRealm = System.getenv('grails.plugin.springsecurity.rest.oauth.keycloak.realm') ?:
+                System.getenv('KEYCLOAK_REALM')
     }
 
     @Override
@@ -51,11 +63,15 @@ class KeycloakOauth2Client extends OAuth20Client<Keycloak2Profile> {
         } else {
             scopeValue = this.PROFILE_SCOPE + " " + this.EMAIL_SCOPE + " " + this.OPENID_SCOPE
         }
+        Map<String, String> customParams = [keycloakRealm: keycloakRealm, keycloakServerUrl: keycloakServerUrl]
+        KeycloakApi20.instance().keycloakRealm = customParams.keycloakRealm
+        KeycloakApi20.instance().keycloakServerUrl = customParams.keycloakServerUrl
         configuration.setApi(KeycloakApi20.instance())
         configuration.setProfileDefinition(new Keycloak2ProfileDefinition())
         configuration.setScope(scopeValue)
         configuration.setWithState(true)
         configuration.setTokenAsHeader(true)
+        configuration.setCustomParams(customParams)
         configuration.setHasBeenCancelledFactory({ ctx ->
             final String error = ctx.getRequestParameter(OAuthCredentialsException.ERROR)
             // user has denied permissions
@@ -65,7 +81,6 @@ class KeycloakOauth2Client extends OAuth20Client<Keycloak2Profile> {
             return false
         })
         setConfiguration(configuration)
-        defaultLogoutActionBuilder(new KeycloakLogoutActionBuilder<>())
 
         defaultRedirectActionBuilder(new OAuth20RedirectActionBuilder(configuration))
         defaultCredentialsExtractor(new OAuth20CredentialsExtractor(configuration))

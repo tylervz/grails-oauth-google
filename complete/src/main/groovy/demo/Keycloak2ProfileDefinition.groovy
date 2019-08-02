@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.JsonNode
 import com.github.scribejava.core.model.OAuth2AccessToken
 import com.github.scribejava.core.model.Verb
-import org.apache.commons.codec.binary.Base64
 import org.pac4j.core.exception.HttpAction
 import org.pac4j.core.profile.converter.Converters
 import org.pac4j.oauth.config.OAuth20Configuration
@@ -45,10 +44,12 @@ class Keycloak2ProfileDefinition extends OAuth20ProfileDefinition<Keycloak2Profi
         return Verb.POST
     }
 
-    // TODO: have this set dynamically from configuration once everything is working
     @Override
     String getProfileUrl(final OAuth2AccessToken accessToken, final OAuth20Configuration configuration) {
-        return "http://localhost:8080/auth/realms/hclabs-dev/protocol/openid-connect/userinfo"
+        final Map<String, String> params = configuration.getCustomParams()
+        final String keycloakServerUrl = params['keycloakServerUrl']
+        final String keycloakRealm = params['keycloakRealm']
+        return "${keycloakServerUrl}/auth/realms/${keycloakRealm}/protocol/openid-connect/userinfo"
     }
 
     @Override

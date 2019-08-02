@@ -17,6 +17,12 @@ class Keycloak2Profile extends OAuth20Profile {
 
     private static final long serialVersionUID = -1507361238506547901L
 
+    /**
+     * Extracts the roles from profile's access token (since it is a JWT)
+     * and adds them to the profile's roles.
+     *
+     * @return the roles
+     */
     Set<String> retrieveRolesFromToken() {
         Set<String> roles = []
         // Decode the profile's access token and retrieve the roles from it
@@ -31,7 +37,6 @@ class Keycloak2Profile extends OAuth20Profile {
                 roles.add(convertedRole)
             }
         }
-        println "roles: ${roles}"
         // Add the roles to the profile
         addRoles(roles)
         return roles
@@ -88,25 +93,7 @@ class Keycloak2Profile extends OAuth20Profile {
         String base64EncodedSignature = split_string[2]
 
         Base64 base64Url = new Base64(true)
-        String header = new String(base64Url.decode(base64EncodedHeader))
-        println("JWT Header : " + header)
-
         String body = new String(base64Url.decode(base64EncodedBody))
-        println("JWT Body : " + body)
         return body
-    }
-
-    static Set<String> testFetchingRoles(String accessToken) {
-        String jwtBody = decodeJwt(accessToken)
-        final JsonNode json = JsonHelper.getFirstNode(jwtBody, "realm_access")
-        Set<String> roles = []
-        if (json != null) {
-            ArrayNode rolesArray = JsonHelper.getElement(json, "roles") as ArrayNode
-            println "rolesArray: ${rolesArray}"
-            for (String role in rolesArray) {
-                roles.add(role)
-            }
-        }
-        return roles
     }
 }
