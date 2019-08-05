@@ -1,4 +1,5 @@
 //tag::tokenReaderImport[]
+import demo.CustomAuthenticationProvider
 import demo.JwtCookieTokenReader
 //end::tokenReaderImport[]
 //tag::cookieClearingImport[]
@@ -13,4 +14,5 @@ beans = {
     //tag::cookieClearing[]
     cookieClearingLogoutHandler(CookieClearingLogoutHandler, ['jwt'])
     //end::cookieClearing[]
+    myAuthenticationProvider(CustomAuthenticationProvider) {}
 }

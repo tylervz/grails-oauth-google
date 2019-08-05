@@ -44,8 +44,10 @@ grails.plugin.springsecurity.filterChain.chainMap = [
 		[pattern: '/auth/success', filters: ANONYMOUS_FILTERS], // <1>
 		[pattern: '/oauth/authenticate/keycloak', filters: ANONYMOUS_FILTERS], // <1>
 		[pattern: '/oauth/callback/keycloak', filters: ANONYMOUS_FILTERS], // <1>
-		[pattern: '/**', filters: ANONYMOUS_FILTERS]
-		// Stateless chain that doesn’t allow anonymous access. Thus, the token will always be required, and if missing, a Bad Request reponse will be sent back to the client.
+//		[pattern: '/**', filters: ANONYMOUS_FILTERS],
+		// Chain copied from OJT
+		[pattern: '/**', filters: 'JOINED_FILTERS,-exceptionTranslationFilter,-authenticationProcessingFilter,-securityContextPersistenceFilter,-rememberMeAuthenticationFilter']
+		// Stateless chain that does not allow anonymous access. Thus, the token will always be required, and if missing, a Bad Request response will be sent back to the client.
 		// [pattern: '/**', filters: 'JOINED_FILTERS,-anonymousAuthenticationFilter,-exceptionTranslationFilter,-authenticationProcessingFilter,-securityContextPersistenceFilter,-rememberMeAuthenticationFilter'],  // <1>
 ]
 //end::filterChain[]
