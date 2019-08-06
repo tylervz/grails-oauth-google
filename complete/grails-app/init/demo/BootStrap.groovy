@@ -1,5 +1,7 @@
 package demo
 
+import grails.plugin.springsecurity.SecurityFilterPosition
+import grails.plugin.springsecurity.SpringSecurityUtils
 import groovy.transform.CompileStatic
 
 @CompileStatic
@@ -105,6 +107,11 @@ class BootStrap {
     BookDataService bookDataService
 
     def init = { servletContext ->
+        // Register our filter just after the Open ID filter
+        // https://grails-plugins.github.io/grails-spring-security-core/3.2.3/#filters
+        SpringSecurityUtils.clientRegisterFilter(
+                'keycloakTokenValidationFilter', SecurityFilterPosition.OPENID_FILTER.order + 10)
+
         for (Map<String, String> bookInfo : (GRAILS_BOOKS + GROOVY_BOOKS)) {
             bookDataService.save(bookInfo.title, bookInfo.author, bookInfo.about, bookInfo.href, bookInfo.image)
         }

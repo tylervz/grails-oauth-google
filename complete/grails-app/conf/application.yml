@@ -87,11 +87,12 @@ grails:
     plugin:
         springsecurity:
             providerNames:
+                - myAuthenticationProvider
                 - anonymousAuthenticationProvider
             rest:
                 token:
                     validation:
-                        useBearerToken: false
+                        useBearerToken: true
                         enableAnonymousAccess: true
                     storage.jwt.secret: 'VVnVYzxWWNmeWwTtjRYX4492342354VVnVYzxWWNmeWwTtjRYX'
                 oauth:

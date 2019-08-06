@@ -30,7 +30,7 @@ grails {
 
 //tag::filterChain[]
 // Stateless chain that allows anonymous access when no token is sent. If however a token is on the request, it will be validated.
-String ANONYMOUS_FILTERS = 'anonymousAuthenticationFilter,restTokenValidationFilter,restExceptionTranslationFilter,filterInvocationInterceptor' // <1>
+String ANONYMOUS_FILTERS = 'anonymousAuthenticationFilter,keycloakTokenValidationFilter,restExceptionTranslationFilter,filterInvocationInterceptor' // <1>
 grails.plugin.springsecurity.filterChain.chainMap = [
 		[pattern: '/dbconsole/**',      filters: 'none'],
 		[pattern: '/assets/**',      filters: 'none'],
@@ -44,8 +44,9 @@ grails.plugin.springsecurity.filterChain.chainMap = [
 		[pattern: '/auth/success', filters: ANONYMOUS_FILTERS], // <1>
 		[pattern: '/oauth/authenticate/keycloak', filters: ANONYMOUS_FILTERS], // <1>
 		[pattern: '/oauth/callback/keycloak', filters: ANONYMOUS_FILTERS], // <1>
-		[pattern: '/**', filters: ANONYMOUS_FILTERS]
-		// Stateless chain that doesn’t allow anonymous access. Thus, the token will always be required, and if missing, a Bad Request reponse will be sent back to the client.
+//		[pattern: '/**', filters: ANONYMOUS_FILTERS]
+		[pattern: '/**', filters: 'JOINED_FILTERS,-restTokenValidationFilter,-exceptionTranslationFilter,-authenticationProcessingFilter,-securityContextPersistenceFilter,-rememberMeAuthenticationFilter']
+		// Stateless chain that does not allow anonymous access. Thus, the token will always be required, and if missing, a Bad Request response will be sent back to the client.
 		// [pattern: '/**', filters: 'JOINED_FILTERS,-anonymousAuthenticationFilter,-exceptionTranslationFilter,-authenticationProcessingFilter,-securityContextPersistenceFilter,-rememberMeAuthenticationFilter'],  // <1>
 ]
 //end::filterChain[]
