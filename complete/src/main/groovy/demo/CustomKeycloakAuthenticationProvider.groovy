@@ -55,44 +55,8 @@ class CustomKeycloakAuthenticationProvider implements AuthenticationProvider, Gr
         Assert.isInstanceOf(AccessToken, authentication, "Only AccessToken is supported")
         AccessToken accessToken = authentication as AccessToken
         log.debug "Trying to validate token ${accessToken.accessToken}"
-        String jwtBody = Keycloak2Profile.decodeJwt(accessToken.accessToken)
-        final JsonNode json = JsonHelper.getFirstNode(jwtBody)
-        String keycloakUserId = JsonHelper.getElement(json, "sub")
-        String tokenType = JsonHelper.getElement(json, "typ")
-        if (tokenType != "Bearer") {
-            throw new KeycloakAuthenticationException("Token is not of type Bearer. It is of type ${tokenType}")
-        }
-        // Number of seconds since Unix epoch
-        Long expirationTime = JsonHelper.getElement(json, "exp") as Long
-        Date expiration = new Date(expirationTime * 1000)
-        Boolean credentialsNonExpired = new Date() < expiration
-        if (!credentialsNonExpired) {
-            throw new KeycloakAuthenticationException("Token is expired. It expired on ${expiration}")
-        }
-        String username = JsonHelper.getElement(json, "preferred_username")
-        // Maybe extract other properties like session_state
-        /**
-         *   "session_state": "3b2f8d12-b737-404f-81ae-7d4197825499",
-         *   "scope": "email profile",
-         *   "email_verified": false,
-         *   "name": "Admin User",
-         *   "preferred_username": "adminuser",
-         *   "given_name": "Admin",
-         *   "family_name": "User",
-         *   "email": "adminuser@email.com"
-         */
-
-        final JsonNode realmAccessJson = JsonHelper.getElement(json, "realm_access") as JsonNode
-        List<GrantedAuthority> authorities = []
-        if (realmAccessJson != null) {
-            ArrayNode rolesArray = JsonHelper.getElement(realmAccessJson, "roles") as ArrayNode
-            for (String role in rolesArray) {
-                // Remove the quotation marks at the front and end of the string
-                String convertedRole = role.replaceAll('"', '')
-                log.debug "Adding authority: ${convertedRole}"
-                authorities << new SimpleGrantedAuthority(convertedRole)
-            }
-        }
+        AccessToken token = createTokenFromKeycloakJwt(accessToken.accessToken, accessToken.refreshToken)
+        token.details = authentication.details
 
         RestResponse restResponse = getUserInfoFromKeycloak(KEYCLOAK_SERVER_URL, KEYCLOAK_REALM, accessToken.accessToken)
         HttpStatus statusCode = restResponse.statusCode
@@ -110,12 +74,63 @@ class CustomKeycloakAuthenticationProvider implements AuthenticationProvider, Gr
             throw new KeycloakAuthenticationException("Token invalid. ${message}")
         }
 
+        return token
+    }
+
+    /**
+     * Returns an AccessToken object based on the JWT parameters.
+     *
+     * @param accessToken
+     * @param refreshToken
+     * @return an AccessToken
+     * @throws AuthenticationException
+     */
+    static AccessToken createTokenFromKeycloakJwt(String accessToken, String refreshToken) throws AuthenticationException {
+        String jwtBody = Keycloak2Profile.decodeJwt(accessToken)
+        final JsonNode json = JsonHelper.getFirstNode(jwtBody)
+        String keycloakUserId = JsonHelper.getElement(json, "sub")
+        String tokenType = JsonHelper.getElement(json, "typ")
+        // Number of seconds since Unix epoch
+        Long expirationTime = JsonHelper.getElement(json, "exp") as Long
+        Date expiration = new Date(expirationTime * 1000)
+        Boolean credentialsNonExpired = new Date() < expiration
+        String username = JsonHelper.getElement(json, "preferred_username")
+        // Maybe extract other properties like session_state
+        /**
+         *   "session_state": "3b2f8d12-b737-404f-81ae-7d4197825499",
+         *   "scope": "email profile",
+         *   "email_verified": false,
+         *   "name": "Admin User",
+         *   "preferred_username": "adminuser",
+         *   "given_name": "Admin",
+         *   "family_name": "User",
+         *   "email": "adminuser@email.com"
+         */
+        final JsonNode realmAccessJson = JsonHelper.getElement(json, "realm_access") as JsonNode
+        List<GrantedAuthority> authorities = []
+        if (realmAccessJson != null) {
+            ArrayNode rolesArray = JsonHelper.getElement(realmAccessJson, "roles") as ArrayNode
+            for (def role in rolesArray) {
+                // Remove the quotation marks at the front and end of the string
+                String convertedRole = role.toString().replaceAll('"', '')
+                log.debug "Adding authority: ${convertedRole}"
+                authorities << new SimpleGrantedAuthority(convertedRole)
+            }
+        }
+
+        if (tokenType != "Bearer") {
+            throw new KeycloakAuthenticationException("Token is not of type Bearer. It is of type ${tokenType}")
+        }
+
+        if (!credentialsNonExpired) {
+            throw new KeycloakAuthenticationException("Token is expired. It expired on ${expiration}")
+        }
+
         AccessToken token = new AccessToken(authorities)
-        token.accessToken = accessToken.accessToken
-        token.refreshToken = accessToken.refreshToken
+        token.accessToken = accessToken
+        token.refreshToken = refreshToken
         // Number of seconds left until the token expires
-        token.expiration = expirationTime - System.currentTimeSeconds()
-        token.details = authentication.details
+        token.expiration = (Integer) (expirationTime - System.currentTimeSeconds())
 
         GrailsUser grailsUser = new GrailsUser(username, "passwordrandom", true,
                 true, credentialsNonExpired, true, authorities, keycloakUserId)

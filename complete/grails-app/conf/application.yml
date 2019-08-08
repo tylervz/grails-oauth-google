@@ -103,6 +103,8 @@ grails:
                         # The Keycloak URL
                         serverUrl: "http://localhost:8080"
                         realm: hclabs-dev
+                        realmAdminUsername: adminuser
+                        realmAdminPassword: adminuser
                         # Client ID (would have this imported as secrets on kubernetes)
                         key: ojt
                         # Client secret (would have this imported as secrets on kubernetes)

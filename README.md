@@ -27,6 +27,10 @@ to match the configuration settings of your Keycloak server.
     grails.plugin.springsecurity.rest.oauth.keycloak.key
     # Client secret
     grails.plugin.springsecurity.rest.oauth.keycloak.secret
+    # The username of the Keycloak user in your specified realm that has the impersonation role
+    grails.plugin.springsecurity.rest.oauth.keycloak.realmAdminUsername
+    # The password of the Keycloak user in your specified realm that has the impersonation role
+    grails.plugin.springsecurity.rest.oauth.keycloak.realmAdminPassword
 
 Note that when running the Grails application you will need to set environment variables for `KeycloakOauth2Client` to load the configuration.
 
@@ -35,11 +39,12 @@ Note that when running the Grails application you will need to set environment v
 
 # Authentication
 
-Once you have the Grails application running, you can interact with it by sending requests to the BookController
-i.e. http://localhost:8082/book/userDetails
+Once you have the Grails application running, you can interact with it by sending requests
+to the BookController i.e. http://localhost:8082/book/userDetails
 
-Unless the method that you are calling has a `@Secured('permitAll')` annotation, the request needs to have an Authorization header
-of "Bearer <access_token>" with an access token obtained from your Keycloak server.
+Unless the method that you are calling has a `@Secured('permitAll')` annotation,
+the request needs to have an Authorization header of "Bearer <access_token>"
+with an access token obtained from your Keycloak server.
 
 You can get an access token by making a request like this:
 
@@ -49,6 +54,25 @@ If you're using Postman, you'll want to put the data in the Body of the request 
 
 ![image](https://user-images.githubusercontent.com/8753239/62800777-df4b3c80-baa9-11e9-81de-2c03414fe140.png)
 
+# Mobile Authentication Flow
+
+To imitate the authentication flow of a mobile app signing in using this Grails app, you can call
+
+    localhost:8082/handshake/register?user=<keycloak_user_id>&deviceID=<device_id>
+
+where `<keycloak_user_id>` would be the user id or username of the Keycloak user you want to sign in as
+(i.e. something like "898eea86-3383-4677-8a49-63b5b0698f7e") and `<device_id>` would be
+a unique identifier for the mobile device you are using.
+
+The response will include a field called `accessCode` but if this was a real application,
+you would have this access code emailed to them instead.
+
+Then to get the Keycloak token you call
+
+    localhost:8082/handshake/authenticate?accessCode=<accessCode>&deviceID=<device_id>
+
+where `<device_id>` is the same Device ID you used in the previous call
+and `<accessCode>` is the access code that was returned by the previous call.
 
 ## Signing in using the UI does not work
 
