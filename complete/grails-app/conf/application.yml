@@ -106,7 +106,7 @@ grails:
                         key: ojt
                         # Client secret (would have this imported as secrets on kubernetes)
                         secret: 'ccc6be03-8a3c-4e4b-87d3-a6b50f5bde3e'
-                        # Specific roles that are applied to all Keycloak user
+                        # Specific roles that are applied to all Keycloak users
                         defaultRoles: []
 endpoints:
     jmx:
